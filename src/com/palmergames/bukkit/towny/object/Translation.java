@@ -63,6 +63,9 @@ public final class Translation {
 		translations = loader.getTranslations();
 		// Set the defaultLocale.
 		setDefaultLocale();
+		
+		// Remove any disabled languages from the translations map.
+		translations.keySet().removeIf(lang -> !TownySettings.isLanguageEnabled(lang) && !lang.equalsIgnoreCase(defaultLocale.toString()));
 
 		Towny.getPlugin().getLogger().info(String.format("Successfully loaded translations for %d languages.", translations.keySet().size()));
 
