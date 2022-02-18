@@ -24,6 +24,7 @@ import com.palmergames.bukkit.towny.exceptions.initialization.TownyInitException
 import com.palmergames.bukkit.towny.hooks.LuckPermsContexts;
 import com.palmergames.bukkit.towny.huds.HUDManager;
 import com.palmergames.bukkit.towny.invites.InviteHandler;
+import com.palmergames.bukkit.towny.listeners.TownyPaperEvents;
 import com.palmergames.bukkit.towny.listeners.TownyBlockListener;
 import com.palmergames.bukkit.towny.listeners.TownyCustomListener;
 import com.palmergames.bukkit.towny.listeners.TownyEntityListener;
@@ -38,6 +39,7 @@ import com.palmergames.bukkit.towny.object.Coord;
 import com.palmergames.bukkit.towny.object.PlayerCache;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.TownBlockTypeHandler;
+import com.palmergames.bukkit.towny.object.TownyWorld;
 import com.palmergames.bukkit.towny.object.Translatable;
 import com.palmergames.bukkit.towny.object.Translation;
 import com.palmergames.bukkit.towny.object.WorldCoord;
@@ -113,6 +115,7 @@ public class Towny extends JavaPlugin {
 	private final TownyInventoryListener inventoryListener = new TownyInventoryListener();
 	private final TownyLoginListener loginListener = new TownyLoginListener();
 	private final HUDManager HUDManager = new HUDManager(this);
+	private final TownyPaperEvents paperEvents = new TownyPaperEvents(this);
 
 	private TownyUniverse townyUniverse;
 
@@ -669,6 +672,7 @@ public class Towny extends JavaPlugin {
 		pluginManager.registerEvents(entityListener, this);
 		pluginManager.registerEvents(inventoryListener, this);
 
+		paperEvents.register();
 	}
 
 	private void printChangelogToConsole() {
@@ -792,14 +796,14 @@ public class Towny extends JavaPlugin {
 
 	public PlayerCache newCache(Player player) {
 
-		try {
-			PlayerCache cache = new PlayerCache(TownyUniverse.getInstance().getDataSource().getWorld(player.getWorld().getName()), player);
-			playerCache.put(player.getUniqueId(), cache);
-			return cache;
-		} catch (NotRegisteredException e) {
+		TownyWorld world = TownyUniverse.getInstance().getWorld(player.getWorld().getName());
+		if (world == null) {
 			TownyMessaging.sendErrorMsg(player, "Could not create permission cache for this world (" + player.getWorld().getName() + ".");
-			return null;
+			return null;	
 		}
+		PlayerCache cache = new PlayerCache(world, player);
+		playerCache.put(player.getUniqueId(), cache);
+		return cache;
 
 	}
 
