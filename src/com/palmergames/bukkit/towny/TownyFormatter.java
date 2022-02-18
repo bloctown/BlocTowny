@@ -173,7 +173,7 @@ public class TownyFormatter {
 					.append(Component.text(colourKeyValue(translator.of("res_list"), StringMgmt.join(residents, ", "))))
 					.append(Component.newline())
 					.append(Component.text(translator.of("status_hover_click_for_more")))),
-				ClickEvent.runCommand("/towny:town " + town.getName())
+				ClickEvent.runCommand("/town " + town.getName())
 			);
 		}
 		
@@ -193,7 +193,7 @@ public class TownyFormatter {
 							.append(Component.text(colourKeyValue(translator.of("town_plu"), StringMgmt.join(towns, ", "))))
 							.append(Component.newline())
 							.append(Component.text(translator.of("status_hover_click_for_more")))),
-					ClickEvent.runCommand("/towny:nation " + nation.getName())
+					ClickEvent.runCommand("/nation " + nation.getName())
 					);
 		}
 		
@@ -201,7 +201,7 @@ public class TownyFormatter {
 				if (TownyEconomyHandler.isActive())
 					screen.addComponentOf("bank", colourKeyValue(translator.of("status_bank"), resident.getAccount().getHoldingFormattedBalance()),
 							HoverEvent.showText(Component.text(translator.of("status_hover_click_for_more"))),
-							ClickEvent.runCommand("/towny:resident tax " + resident.getName()));
+							ClickEvent.runCommand("/resident tax " + resident.getName()));
 		
 		// Owner of: 4 plots
 		// Perm: Build = f-- Destroy = fa- Switch = fao Item = ---
@@ -332,7 +332,7 @@ public class TownyFormatter {
 			}
 			screen.addComponentOf("outposts", outpostLine,
 					HoverEvent.showText(Component.text(translator.of("status_hover_click_for_more"))),
-					ClickEvent.runCommand("/towny:town outpost list"));
+					ClickEvent.runCommand("/town outpost list"));
 		}
 
 		// Permissions: B=rnao D=---- S=rna- I=rnao
@@ -360,7 +360,7 @@ public class TownyFormatter {
 					HoverEvent.showText(Component.text(translator.of("registered_last_online", registeredFormat.format(town.getMayor().getRegistered()), lastOnlineFormatIncludeYear.format(town.getMayor().getLastOnline())))
 						.append(Component.newline())
 						.append(Component.text(translator.of("status_hover_click_for_more")))),
-					ClickEvent.runCommand("/towny:resident " + town.getMayor().getName())
+					ClickEvent.runCommand("/resident " + town.getMayor().getName())
 					);
 
 			// Nation: Azur Empire
@@ -385,7 +385,7 @@ public class TownyFormatter {
 				
 				screen.addComponentOf("nation", colourKeyValue(translator.of("status_town_nation"), town.getNationOrNull().getName() + formatPopulationBrackets(town.getNationOrNull().getTowns().size())), 
 						hover.asHoverEvent(),
-						ClickEvent.runCommand("/towny:nation " + town.getNationOrNull().getName())
+						ClickEvent.runCommand("/nation " + town.getNationOrNull().getName())
 						);
 			}
 			
@@ -397,7 +397,7 @@ public class TownyFormatter {
 						HoverEvent.showText(Component.text(String.join("\n", ranklist))
 							.append(Component.newline())
 							.append(Component.text(translator.of("status_hover_click_for_more")))),
-						ClickEvent.runCommand("/towny:town ranklist " + town.getName()));
+						ClickEvent.runCommand("/town ranklist " + town.getName()));
 
 			// Residents [12]: James, Carry, Mason
 			String[] residents = getFormattedNames(town.getResidents().toArray(new Resident[0]));
@@ -407,7 +407,7 @@ public class TownyFormatter {
 				HoverEvent.showText(Component.text(getFormattedStrings(translator.of("res_list"), Arrays.stream(residents).collect(Collectors.toList()), town.getResidents().size()))
 					.append(Component.newline())
 					.append(Component.text(translator.of("status_hover_click_for_more")))),
-				ClickEvent.runCommand("/towny:town reslist "+ town.getName()));
+				ClickEvent.runCommand("/town reslist "+ town.getName()));
 
 		}
 		
@@ -481,7 +481,7 @@ public class TownyFormatter {
 					HoverEvent.showText(Component.text(translator.of("registered_last_online", registeredFormat.format(king.getRegistered()), lastOnlineFormatIncludeYear.format(king.getLastOnline())))
 						.append(Component.newline())
 						.append(Component.text(translator.of("status_hover_click_for_more")))),
-					ClickEvent.runCommand("/towny:resident " + king.getName())
+					ClickEvent.runCommand("/resident " + king.getName())
 					);
 
 			// Capital: Big City
@@ -497,7 +497,7 @@ public class TownyFormatter {
 					.append(Component.text(colourKeyValue(translator.of("res_list"), StringMgmt.join(residents, ", "))))
 					.append(Component.newline())
 					.append(Component.text(translator.of("status_hover_click_for_more")))),
-				ClickEvent.runCommand("/towny:town " + capital.getName())
+				ClickEvent.runCommand("/town " + capital.getName())
 			);
 			
 			// Nation Zone Size: 3
@@ -513,7 +513,7 @@ public class TownyFormatter {
 				HoverEvent.showText(Component.text(String.join("\n", ranklist))
 						.append(Component.newline())
 						.append(Component.text(translator.of("status_hover_click_for_more")))),
-				ClickEvent.runCommand("/towny:nation ranklist " + nation.getName()));
+				ClickEvent.runCommand("/nation ranklist " + nation.getName()));
 		
 		// Towns [44]: James City, Carry Grove, Mason Town
 		String[] towns = getFormattedNames(nation.getTowns().toArray(new Town[0]));
@@ -523,7 +523,7 @@ public class TownyFormatter {
 			HoverEvent.showText(Component.text(getFormattedStrings(translator.of("status_nation_towns"), Arrays.stream(towns).collect(Collectors.toList()), nation.getTowns().size()))
 					.append(Component.newline())
 					.append(Component.text(translator.of("status_hover_click_for_more")))),
-			ClickEvent.runCommand("/towny:nation townlist " + nation.getName()));
+			ClickEvent.runCommand("/nation townlist " + nation.getName()));
 		
 		// Allies [4]: James Nation, Carry Territory, Mason Country
 		String[] allies = getFormattedNames(nation.getAllies().toArray(new Nation[0]));
@@ -534,7 +534,7 @@ public class TownyFormatter {
 				HoverEvent.showText(Component.text(getFormattedStrings(translator.of("status_nation_allies"), Arrays.stream(allies).collect(Collectors.toList()), nation.getAllies().size()))
 						.append(Component.newline())
 						.append(Component.text(translator.of("status_hover_click_for_more")))),
-				ClickEvent.runCommand("/towny:nation allylist " + nation.getName()));
+				ClickEvent.runCommand("/nation allylist " + nation.getName()));
 
 		// Enemies [4]: James Nation, Carry Territory, Mason Country
 		String[] enemies = getFormattedNames(nation.getEnemies().toArray(new Nation[0]));
@@ -545,7 +545,7 @@ public class TownyFormatter {
 				HoverEvent.showText(Component.text(getFormattedStrings(translator.of("status_nation_enemies"), Arrays.stream(enemies).collect(Collectors.toList()), nation.getEnemies().size()))
 						.append(Component.newline())
 						.append(Component.text(translator.of("status_hover_click_for_more")))),
-				ClickEvent.runCommand("/towny:nation enemylist " + nation.getName()));
+				ClickEvent.runCommand("/nation enemylist " + nation.getName()));
 
 		// Add any metadata which opt to be visible.
 		List<Component> fields = getExtraFields(nation);
