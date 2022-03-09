@@ -30,6 +30,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -322,7 +322,7 @@ public class TownySettings {
 		List<String> switches = getStrArr(ConfigNodes.PROT_SWITCH_MAT);
 		for (String matName : switches) {
 			if (ItemLists.GROUPS.contains(matName)) {
-				switchUseMaterials.addAll(toMaterialSet(ItemLists.getGrouping(matName)));
+				switchUseMaterials.addAll(ItemLists.getGrouping(matName));
 			} else {
 				Material material = Material.matchMaterial(matName);
 				if (material != null)
@@ -338,7 +338,7 @@ public class TownySettings {
 		List<String> items = getStrArr(ConfigNodes.PROT_ITEM_USE_MAT);
 		for (String matName : items) {
 			if (ItemLists.GROUPS.contains(matName)) {
-				itemUseMaterials.addAll(toMaterialSet(ItemLists.getGrouping(matName)));
+				itemUseMaterials.addAll(ItemLists.getGrouping(matName));
 			} else {
 				Material material = Material.matchMaterial(matName);
 				if (material != null)
@@ -347,12 +347,23 @@ public class TownySettings {
 		}
 	}
 
-	public static Set<Material> toMaterialSet(List<String> materialList) {
-		Set<Material> materials = new HashSet<>();
+	public static EnumSet<EntityType> toEntityTypeEnumSet(List<String> entityList) {
+		EnumSet<EntityType> entities = EnumSet.noneOf(EntityType.class);
+		for (String entityName : entityList) {
+			try {
+				entities.add(EntityType.valueOf(entityName.toUpperCase(Locale.ROOT)));
+			} catch (IllegalArgumentException ignored) {}
+		}
+
+		return entities;
+	}
+
+	public static EnumSet<Material> toMaterialEnumSet(List<String> materialList) {
+		EnumSet<Material> materials = EnumSet.noneOf(Material.class);
 		for (String materialName : materialList) {
-			Material material = Material.matchMaterial(materialName);
+			Material material = Material.matchMaterial(materialName.toUpperCase(Locale.ROOT));
 			if (material != null)
-				materials.add(material);				
+				materials.add(material);
 		}
 		
 		return materials;
@@ -989,10 +1000,9 @@ public class TownySettings {
 		int ratio = getTownBlockRatio();
 		int n = town.getBonusBlocks() + town.getPurchasedBlocks();
 
-		if (ratio == 0) {
+		if (ratio == 0)
 			n += (Integer) getTownLevel(town).get(TownySettings.TownLevel.TOWN_BLOCK_LIMIT);
-
-		} else
+		else
 			n += town.getNumResidents() * ratio;
 
 		n += getNationBonusBlocks(town);
@@ -1473,9 +1483,9 @@ public class TownySettings {
 		return getFireSpreadBypassMaterials().contains(mat);
 	}
 	
-	public static List<String> getUnclaimedZoneIgnoreMaterials() {
+	public static EnumSet<Material> getUnclaimedZoneIgnoreMaterials() {
 
-		return getStrArr(ConfigNodes.UNCLAIMED_ZONE_IGNORE);
+		return toMaterialEnumSet(getStrArr(ConfigNodes.UNCLAIMED_ZONE_IGNORE));
 	}
 	
 	public static List<Class<?>> getProtectedEntityTypes() {
@@ -2000,9 +2010,9 @@ public class TownySettings {
 		return getBoolean(ConfigNodes.NWS_PLOT_MANAGEMENT_DELETE_ENABLE);
 	}
 
-	public static List<String> getPlotManagementDeleteIds() {
+	public static EnumSet<Material> getPlotManagementDeleteIds() {
 
-		return getStrArr(ConfigNodes.NWS_PLOT_MANAGEMENT_DELETE);
+		return toMaterialEnumSet(getStrArr(ConfigNodes.NWS_PLOT_MANAGEMENT_DELETE));
 	}
 
 	public static boolean isUsingPlotManagementMayorDelete() {
@@ -2010,9 +2020,9 @@ public class TownySettings {
 		return getBoolean(ConfigNodes.NWS_PLOT_MANAGEMENT_MAYOR_DELETE_ENABLE);
 	}
 
-	public static List<String> getPlotManagementMayorDelete() {
+	public static EnumSet<Material> getPlotManagementMayorDelete() {
 
-		return getStrArr(ConfigNodes.NWS_PLOT_MANAGEMENT_MAYOR_DELETE);
+		return toMaterialEnumSet(getStrArr(ConfigNodes.NWS_PLOT_MANAGEMENT_MAYOR_DELETE));
 	}
 
 	public static boolean isUsingPlotManagementRevert() {
@@ -2040,9 +2050,9 @@ public class TownySettings {
 		return getBoolean(ConfigNodes.NWS_PLOT_MANAGEMENT_WILD_BLOCK_REVERT_ENABLE);
 	}
 
-	public static List<String> getPlotManagementIgnoreIds() {
+	public static EnumSet<Material> getPlotManagementIgnoreIds() {
 
-		return getStrArr(ConfigNodes.NWS_PLOT_MANAGEMENT_REVERT_IGNORE);
+		return toMaterialEnumSet(getStrArr(ConfigNodes.NWS_PLOT_MANAGEMENT_REVERT_IGNORE));
 	}
 
 	public static boolean isTownRespawning() {
@@ -2731,6 +2741,10 @@ public class TownySettings {
 	
 	public static double getSpawnTravelCost() {
 		return getDouble(ConfigNodes.ECO_PRICE_TOWN_SPAWN_TRAVEL_PUBLIC);
+	}
+	
+	public static boolean isPublicSpawnCostAffectedByTownSpawncost() {
+		return getBoolean(ConfigNodes.ECO_PRICE_ALLOW_MAYORS_TO_OVERRIDE_PUBLIC_SPAWN_COST);
 	}
 	
 	public static boolean isAllySpawningRequiringPublicStatus() {

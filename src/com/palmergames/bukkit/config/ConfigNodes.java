@@ -460,7 +460,7 @@ public enum ConfigNodes {
 			"# wilderness by monsters exploding."),
 	NWS_PLOT_MANAGEMENT_WILD_ENTITY_REVERT_LIST(
 			"new_world_settings.plot_management.wild_revert_on_mob_explosion.entities",			
-			"Creeper,EnderCrystal,EnderDragon,Fireball,SmallFireball,LargeFireball,TNTPrimed,ExplosiveMinecart,Wither,WitherSkull",
+			"CREEPER,ENDER_CRYSTAL,ENDER_DRAGON,FIREBALL,SMALL_FIREBALL,LARGE_FIREBALL,PRIMED_TNT,MINECART_TNT,WITHER,WITHER_SKULL",
 			"# The list of entities whose explosions should be reverted."),
 	NWS_PLOT_MANAGEMENT_WILD_MOB_REVERT_TIME(
 			"new_world_settings.plot_management.wild_revert_on_mob_explosion.delay",
@@ -1887,6 +1887,12 @@ public enum ConfigNodes {
 			"",
 			"# Maximum cost to use /town spawn [town] that mayors can set using /t set spawncost.",
 			"# This is paid to the town you goto."),
+	ECO_PRICE_ALLOW_MAYORS_TO_OVERRIDE_PUBLIC_SPAWN_COST(
+			"economy.spawn_travel.is_public_spawn_cost_affected_by_town_spawncost",
+			"true",
+			"",
+			"# When false, the price_town_public_spawn_travel will be used for public spawn costs, despite what mayors have their town spawncost set at.",
+			"# When true, the lower of either the town's spawncost or the config's price_town_public_spawn_travel setting will be used."),
 	ECO_PRICE_TOWN_SPAWN_PAID_TO_TOWN(
 			"economy.spawn_travel.town_spawn_cost_paid_to_town",
 			"true",
@@ -2234,8 +2240,8 @@ public enum ConfigNodes {
 			"# Will bankrupt towns pay their nation tax?",
 			"# If false towns that are bankrupt will not pay any nation tax and will leave their nation.",
 			"# If true the town will go into debt up until their debt cap is reached.",
-			"# True is recommended when using a Siege War style war/conquering system,",
-			"# otherwise conquered towns will be able to leave the nation simply by not paying the nation tax.",
+			"# True is recommended if using a war system where towns are forced to join a conqueror's nation,",
+			"# otherwise conquered towns would be able to leave the nation by choosing to go bankrupt.",
 			"# False is recommended otherwise so that nations are not using abandoned towns to gather taxes."),
 	ECO_BANKRUPTCY_NATION_KICKS_TOWNS_THAT_REACH_DEBT_CAP(
 			"economy.bankruptcy.nation_tax.kick_towns_that_reach_debt_cap",

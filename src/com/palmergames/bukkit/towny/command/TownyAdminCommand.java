@@ -70,6 +70,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -1222,7 +1223,7 @@ public class TownyAdminCommand extends BaseCommand implements CommandExecutor {
 				
 			} else if (split[1].equalsIgnoreCase("kick")) {
 
-				TownCommand.townKickResidents(getSender(), town.getMayor(), town, ResidentUtil.getValidatedResidents(getSender(), StringMgmt.remArgs(split, 2)));
+				TownCommand.townKickResidents(getSender(), town.getMayor(), town, ResidentUtil.getValidatedResidentsOfTown(getSender(), town, StringMgmt.remArgs(split, 2)));
 
 			} else if (split[1].equalsIgnoreCase("delete")) {
 
@@ -1287,7 +1288,7 @@ public class TownyAdminCommand extends BaseCommand implements CommandExecutor {
 				
 			} else if (split[1].equalsIgnoreCase("set")) {
 				
-				TownCommand.townSet(player, StringMgmt.remArgs(split, 2), true, town);
+				TownCommand.townSet(sender, StringMgmt.remArgs(split, 2), true, town);
 			} else if (split[1].equalsIgnoreCase("meta")) {
 				
 				handleTownMetaCommand(player, town, split);
@@ -1851,8 +1852,7 @@ public class TownyAdminCommand extends BaseCommand implements CommandExecutor {
 			} else
 				try {
 					Town town = getTownOrThrow(split[1]);
-					// Get the oldMayor if the town is already NPC-run.
-					Resident oldMayor = town.getMayor().isNPC() ? town.getMayor() : null;
+					@Nullable Resident oldMayor = town.getMayor();
 					
 					// New mayor is either an NPC resident or a resident by name from split[2].
 					Resident newMayor = split[2].equalsIgnoreCase("npc") 
@@ -1867,7 +1867,7 @@ public class TownyAdminCommand extends BaseCommand implements CommandExecutor {
 					town.setMayor(newMayor);
 
 					// If the previous mayor was an NPC make sure they're removed from the database.
-					if (oldMayor != null)
+					if (oldMayor != null && oldMayor.isNPC())
 						townyUniverse.getDataSource().removeResident(oldMayor);
 
 					// NPC mayors set their towns to not pay any upkeep.

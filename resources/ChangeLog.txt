@@ -7288,3 +7288,47 @@ v0.92.0.11:
     - Closes #5751.
 0.98.0.0:
   - Bump version number for Release.
+0.98.0.1:
+  - Bump language file to 0.145.
+  - Add missing message shown when a conquered town tries to leave their nation.
+  - Add old mayor name to TownRuinEvent.
+    - Closes #5686.
+  - Turn off update checker for servers older than MC 1.16.
+  - Fix town merging testing max-townblocks, when the remaining town is allowed unlimited claims.
+    - Closes #5758 Closes #5759.
+  - Fix /ta town NAME kick and /t kick requiring the player being kicked to be online.
+  - Fixes database and townyperms files growing new lines.
+  - Get bed spawn locations async in SpawnUtil, courtesy of Warriorrrr #5728.
+  - Refactor /towny command, courtesy of Warriorrrr #5666.
+  - Enumsets for townyworld Material and EntityTypes.
+  - Redo /plot clear to be faster.
+  - ItemLists overhaul, courtesy of Warriorrrr #5737.
+0.98.0.2:
+  - Fix potential NPE in TownRuinUtil.
+  - Fix database and townyperms files self-corrupting their yaml formatting on some servers.
+0.98.0.3:
+  - Fix Citizens NPCs being moved to spawn when safe mode occurs.
+  - Fix no-NO.yml.
+  - New Config Option: economy.spawn_travel.is_public_spawn_cost_affected_by_town_spawncost
+    - Default: true
+    - When false, the price_town_public_spawn_travel will be used for public spawn costs, despite what mayors have their town spawncost set at.
+    - When true, the lower of either the town's spawncost or the config's price_town_public_spawn_travel setting will be used.
+    - Closes #5776.
+  - Fix /ta town NAME set not working well from the console.
+  - Fix sheriff missing jailing permission nodes.
+    - Your townyperms.yml will have the correct nodes added.
+  - Fix revert explosion entities being wiped, courtesy of Warriorrrr with PR #5777.
+0.98.0.4:
+  - Fix explosion revert entities regression, courtesy of Warriorrrr with PR #5781.
+  - Small Blurb Update, courtesy of Goosius1 with PR #5779.
+0.98.0.5:
+  - Fix configs settings getting cramped together.
+  - Fix /towny allowedblocks command.
+  - Fix /towny commands (universe, time, version) now working via console. 
+  - Fix not being able to replace null mayors with /ta set mayor, courtesy of Warriorrrr with PR #5785.
+  - Fix long file names causing exceptions when backing up, courtesy of Warriorrrr with PR #5783.
+  - Convert legacy entity names to the new format, courtesy of Warriorrrr with PR #5786.
+0.98.0.6:
+  - Add workaround for watchdog crashes causing problems, courtesy of Warriorrrr with PR #5792.
+  - Fix outlaws being able to log out before they're teleported away.
+    - Closes #5753.

@@ -12,7 +12,6 @@ import com.palmergames.bukkit.towny.event.PlayerEnterTownEvent;
 import com.palmergames.bukkit.towny.event.PlayerLeaveTownEvent;
 import com.palmergames.bukkit.towny.event.executors.TownyActionEventExecutor;
 import com.palmergames.bukkit.towny.event.player.PlayerDeniedBedUseEvent;
-import com.palmergames.bukkit.towny.event.teleport.OutlawTeleportEvent;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Coord;
 import com.palmergames.bukkit.towny.object.PlayerCache;
@@ -27,20 +26,17 @@ import com.palmergames.bukkit.towny.object.TownyWorld;
 import com.palmergames.bukkit.towny.object.WorldCoord;
 import com.palmergames.bukkit.towny.permissions.PermissionNodes;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
-import com.palmergames.bukkit.towny.tasks.CooldownTimerTask;
-import com.palmergames.bukkit.towny.tasks.CooldownTimerTask.CooldownType;
 import com.palmergames.bukkit.towny.tasks.OnPlayerLogin;
 import com.palmergames.bukkit.towny.tasks.TeleportWarmupTimerTask;
 import com.palmergames.bukkit.towny.utils.CombatUtil;
 import com.palmergames.bukkit.towny.utils.EntityTypeUtil;
 import com.palmergames.bukkit.towny.utils.JailUtil;
-import com.palmergames.bukkit.towny.utils.SpawnUtil;
+import com.palmergames.bukkit.towny.utils.ResidentUtil;
 import com.palmergames.bukkit.util.BukkitTools;
 import com.palmergames.bukkit.util.ChatTools;
 import com.palmergames.bukkit.util.ItemLists;
 import com.palmergames.util.StringMgmt;
 
-import com.palmergames.util.TimeMgmt;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -77,7 +73,6 @@ import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -315,10 +310,8 @@ public class TownyPlayerListener implements Listener {
 				 * 
 				 * Treat interaction as a Destroy test.
 				 */
-				if ((ItemLists.AXES.contains(item.name()) && Tag.LOGS.isTagged(clickedMat)) || // This will also catched already stripped logs but it is cleaner than anything else.
-					(ItemLists.AXES.contains(item.name()) && ItemLists.WAXED_BLOCKS.contains(clickedMat.name())) ||  // Prevents players scraping wax off of copper blocks.
-					(ItemLists.AXES.contains(item.name()) && ItemLists.WEATHERABLE_BLOCKS.contains(clickedMat.name())) || // Prevents players scraping oxidation off of copper blocks.
-					(ItemLists.DYES.contains(item.name()) && Tag.SIGNS.isTagged(clickedMat)) ||
+				if ((ItemLists.AXES.contains(item) && (ItemLists.UNSTRIPPED_WOOD.contains(clickedMat) || ItemLists.WAXED_BLOCKS.contains(clickedMat) || ItemLists.WEATHERABLE_BLOCKS.contains(clickedMat))) ||
+					(ItemLists.DYES.contains(item) && Tag.SIGNS.isTagged(clickedMat)) ||
 					(item == Material.FLINT_AND_STEEL && clickedMat == Material.TNT) ||
 					((item == Material.GLASS_BOTTLE || item == Material.SHEARS) && (clickedMat == Material.BEE_NEST || clickedMat == Material.BEEHIVE || clickedMat == Material.PUMPKIN))) { 
 
@@ -334,13 +327,13 @@ public class TownyPlayerListener implements Listener {
 				/*
 				 * Test putting candles on cakes. Treat interaction as a Build test.
 				 */
-				if (ItemLists.CANDLES.contains(item.name()) && clickedMat == Material.CAKE) 
+				if (ItemLists.CANDLES.contains(item) && clickedMat == Material.CAKE) 
 					event.setCancelled(!TownyActionEventExecutor.canBuild(player, loc, item));
 				
 				/*
 				 * Test wax usage. Treat interaction as a Build test.
 				 */
-				if (item == Material.HONEYCOMB && ItemLists.WEATHERABLE_BLOCKS.contains(clickedMat.name()))
+				if (item == Material.HONEYCOMB && ItemLists.WEATHERABLE_BLOCKS.contains(clickedMat))
 					event.setCancelled(!TownyActionEventExecutor.canBuild(player, loc, item));
 
 				/*
@@ -373,10 +366,10 @@ public class TownyPlayerListener implements Listener {
 			 * 
 			 * Test interaction as a Destroy test. (These used to be switches pre-0.96.3.1)
 			 */
-			if (ItemLists.POTTED_PLANTS.contains(clickedMat.name()) ||
-				ItemLists.HARVESTABLE_BERRIES.contains(clickedMat.name()) ||
-				ItemLists.REDSTONE_INTERACTABLES.contains(clickedMat.name()) ||
-				ItemLists.CANDLES.contains(clickedMat.name()) ||
+			if (ItemLists.POTTED_PLANTS.contains(clickedMat) ||
+				ItemLists.HARVESTABLE_BERRIES.contains(clickedMat) ||
+				ItemLists.REDSTONE_INTERACTABLES.contains(clickedMat) ||
+				ItemLists.CANDLES.contains(clickedMat) ||
 				clickedMat == Material.BEACON || clickedMat == Material.DRAGON_EGG || 
 				clickedMat == Material.COMMAND_BLOCK){
 				
@@ -544,7 +537,7 @@ public class TownyPlayerListener implements Listener {
 				case SHEEP:
 				case WOLF:
 					if (item != null) {
-						if (ItemLists.DYES.contains(item.name())) {
+						if (ItemLists.DYES.contains(item)) {
 							mat = item;
 							break;
 						}
@@ -622,15 +615,14 @@ public class TownyPlayerListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
-
+		// Let's ignore Citizens NPCs
+		if (BukkitTools.checkCitizens(event.getPlayer()))
+			return;
+		
 		if (plugin.isError()) {
 			event.setCancelled(true);
 			return;
 		}
-
-		// Let's ignore Citizens NPCs
-		if (BukkitTools.checkCitizens(event.getPlayer()))
-			return;
 
 		/*
 		 * Abort if we havn't really moved
@@ -876,39 +868,9 @@ public class TownyPlayerListener implements Listener {
 		
 		Town town = event.getEnteredtown();
 		
-		if (town.hasOutlaw(outlaw)) {
-			// Throw a cancellable event so other plugins can prevent the outlaw being moved (in siegewar for instance.)
-			OutlawTeleportEvent outlawEvent = new OutlawTeleportEvent(outlaw, town, event.getPlayer().getLocation());
-			Bukkit.getPluginManager().callEvent(outlawEvent);
-			if (outlawEvent.isCancelled())
-				return;
-			
-			boolean hasBypassNode = TownyUniverse.getInstance().getPermissionSource().testPermission(outlaw.getPlayer(), PermissionNodes.TOWNY_ADMIN_OUTLAW_TELEPORT_BYPASS.getNode());
-			
-			// Admins are omitted so towns won't be informed an admin might be spying on them.
-			if (TownySettings.doTownsGetWarnedOnOutlaw() && !hasBypassNode && !CooldownTimerTask.hasCooldown(outlaw.getName(), CooldownType.OUTLAW_WARNING)) {
-				if (TownySettings.getOutlawWarningMessageCooldown() > 0)
-					CooldownTimerTask.addCooldownTimer(outlaw.getName(), CooldownType.OUTLAW_WARNING);
-				TownyMessaging.sendPrefixedTownMessage(town, Translatable.of("msg_outlaw_town_notify", outlaw.getFormattedName()));
-			}
-			// If outlaws can enter towns OR the outlaw has towny.admin.outlaw.teleport_bypass perm, player is warned but not teleported.
-			if (TownySettings.canOutlawsEnterTowns() || hasBypassNode) {
-				TownyMessaging.sendMsg(outlaw, Translatable.of("msg_you_are_an_outlaw_in_this_town", town));
-			} else {
-				if (TownySettings.getOutlawTeleportWarmup() > 0) {
-					TownyMessaging.sendMsg(outlaw, Translatable.of("msg_outlaw_kick_cooldown", town, TimeMgmt.formatCountdownTime(TownySettings.getOutlawTeleportWarmup())));
-				}
-				new BukkitRunnable() {
-					@Override
-					public void run() {
-						if (TownyAPI.getInstance().getTown(outlaw.getPlayer().getLocation()) != null && TownyAPI.getInstance().getTown(outlaw.getPlayer().getLocation()) == town && town.hasOutlaw(outlaw.getPlayer().getName())) 
-							SpawnUtil.outlawTeleport(town, outlaw);
-					}
-				}.runTaskLater(plugin, TownySettings.getOutlawTeleportWarmup() * 20);
-			}
-		}
+		if (town.hasOutlaw(outlaw))
+			ResidentUtil.outlawEnteredTown(outlaw, town, event.getPlayer().getLocation());
 	}
-
 
 	/**
 	 * onPlayerDieInTown

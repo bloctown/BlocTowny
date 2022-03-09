@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,7 +127,7 @@ public class CommentedConfiguration extends YamlConfiguration {
 	 */
 	private void writeYaml(StringBuilder newContents) {
 		try {
-			Files.write(path, newContents.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+			Files.write(path, newContents.toString().getBytes(StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			logger.warning(String.format("Saving error: Failed to write to file %s.", path));
 			logger.warning(e.getMessage());
@@ -170,7 +169,7 @@ public class CommentedConfiguration extends YamlConfiguration {
 			// Spigot's addition of native SnakeYAML comment support in MC 1.18.1, requires
 			// us to ignore the comments in our own file, which will be replaced later on
 			// with up-to-date comments from the ConfigNodes enum.
-			if (line.trim().startsWith("#") || line.isEmpty())
+			if (line.trim().startsWith("#") || line.isEmpty() || line.trim().isEmpty())
 				continue;
 			
 			// If the line is a node (and not something like a list value)
@@ -306,7 +305,7 @@ public class CommentedConfiguration extends YamlConfiguration {
 		// Parse over all of the comment lines.
 		for (String commentLine : commentLines) {
 			// Add the leading spaces if commentLine isn't empty.
-			commentLine = !commentLine.isEmpty() ? leadingSpaces + commentLine : " "; 
+			commentLine = !commentLine.isEmpty() ? leadingSpaces + commentLine : "  "; 
 			// Add a new line if this comment block already has more than one line.
 			if (commentBlock.length() > 0)
 				commentBlock.append(newLine);
