@@ -176,7 +176,7 @@ public class TownyPlayerListener implements Listener {
 		}
 		
 		// If respawn anchors have higher precedence than town spawns, use them instead.
-		if (Towny.is116Plus() && event.isAnchorSpawn() && TownySettings.isRespawnAnchorHigherPrecedence()) {
+		if (event.isAnchorSpawn() && TownySettings.isRespawnAnchorHigherPrecedence()) {
 			return;
 		}
 
@@ -407,6 +407,16 @@ public class TownyPlayerListener implements Listener {
 				org.bukkit.block.data.type.RespawnAnchor anchor = ((org.bukkit.block.data.type.RespawnAnchor) block.getBlockData());
 				if (anchor.getCharges() == 4)
 					BukkitTools.getPluginManager().callEvent(new BedExplodeEvent(player, blockLoc, null, block.getType()));
+				return;
+			}
+			
+			/*
+			 * Catches hoes taking dirt from Rooted Dirt blocks.
+			 */
+			if (block.getType().name().equals("ROOTED_DIRT") &&
+				event.getItem() != null && 
+				event.getItem().getType().name().toLowerCase().contains("_hoe")) {
+				event.setCancelled(!TownyActionEventExecutor.canDestroy(player, block));
 				return;
 			}
 			
@@ -867,6 +877,9 @@ public class TownyPlayerListener implements Listener {
 			return;
 		
 		Town town = event.getEnteredtown();
+
+		if (outlaw.isJailed() && outlaw.getJailTown().equals(town))
+			return;
 		
 		if (town.hasOutlaw(outlaw))
 			ResidentUtil.outlawEnteredTown(outlaw, town, event.getPlayer().getLocation());
